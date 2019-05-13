@@ -23,7 +23,7 @@ const auth = {
 
 export default async function writeWeekly() {
   const browser = await puppeteer.launch({
-    // headless: false,
+    headless: false,
     executablePath: EXECUTABLE_PATH,
     slowMo: 50
   });
@@ -37,18 +37,18 @@ export default async function writeWeekly() {
     page.on('dialog', async dialog => {
       await dialog.dismiss();
     });
-    await page.waitForNavigation();
+    await page.waitFor(5000);
     const frame = await page
       .frames()
       .find(frame => frame.name() === 'rightFrame');
     await frame.waitForSelector('#tbrz');
     await frame.click('#tbrz');
-    await frame.waitForSelector('#projectLog_0');
+    await frame.waitFor(5000);
     await frame.$eval('#projectLog_0', el => (el.textContent = ''));
     await frame.type('#projectLog_0', NK_CONTENT);
     const startDate = await frame.$eval('#week1DateSpan', el => el.textContent);
     const endDate = await frame.$eval('#week7DateSpan', el => el.textContent);
-    const subject = `周报：${startDate} To ${endDate}`;
+    const subject = `✅ 周报：${startDate} To ${endDate}`;
     await frame.click('#save_button'); // 保存
     // await frame.click('#submit_button');  // 提交
     const successMessage = `
@@ -70,14 +70,14 @@ export default async function writeWeekly() {
     );
   } catch (error) {
     const errorMessage = `
-      信息：✅周报提交失败
+      信息：❌周报提交失败
       错误：${error.message}
       ${NK_URL}
     `;
     sendMail(
       {
         auth,
-        subject: '❌周报提交失败',
+        subject: '❌ 周报提交失败',
         text: errorMessage
       },
       () => {
