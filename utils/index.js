@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 
-export default function sendMail({ auth, subject, text }, cb) {
+export function sendMail({ auth, subject, text }, cb) {
   const transporter = nodemailer.createTransport({
     host: 'smtp-mail.outlook.com',
     secureConnection: false,

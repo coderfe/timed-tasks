@@ -1,7 +1,7 @@
 import puppeteer from 'puppeteer-core';
 import dotenv from 'dotenv';
 
-import sendMail from './sendMail';
+import { sendMail } from '../utils';
 
 dotenv.config();
 
