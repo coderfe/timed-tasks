@@ -49,8 +49,8 @@ export default async function writeWeekly() {
     const startDate = await frame.$eval('#week1DateSpan', el => el.textContent);
     const endDate = await frame.$eval('#week7DateSpan', el => el.textContent);
     const subject = `✅ 周报：${startDate} To ${endDate}`;
-    await frame.click('#save_button'); // 保存
-    // await frame.click('#submit_button');  // 提交
+    // await frame.click('#save_button'); // 保存
+    await frame.click('#submit_button'); // 提交
     const successMessage = `
       时间：${subject}
       信息：✅周报提交成功
