@@ -5,21 +5,7 @@ import { sendMail } from '../utils';
 
 dotenv.config();
 
-const {
-  AUTH_USER,
-  AUTH_PASS,
-  AUTH_TO,
-  NK_USER,
-  NK_PASS,
-  NK_CONTENT,
-  NK_URL,
-  EXECUTABLE_PATH
-} = process.env;
-const auth = {
-  user: AUTH_USER,
-  pass: AUTH_PASS,
-  to: AUTH_TO
-};
+const { NK_USER, NK_PASS, NK_CONTENT, NK_URL, EXECUTABLE_PATH } = process.env;
 
 export default async function writeWeekly() {
   const browser = await puppeteer.launch({
@@ -48,19 +34,23 @@ export default async function writeWeekly() {
     await frame.type('#projectLog_0', NK_CONTENT);
     const startDate = await frame.$eval('#week1DateSpan', el => el.textContent);
     const endDate = await frame.$eval('#week7DateSpan', el => el.textContent);
-    const subject = `✅ 周报：${startDate} To ${endDate}`;
     // await frame.click('#save_button'); // 保存
     await frame.click('#submit_button'); // 提交
-    const successMessage = `
-      时间：${subject}
-      信息：✅周报提交成功
-      内容：${NK_CONTENT}
-    `;
     sendMail(
       {
-        auth,
-        subject,
-        text: successMessage
+        subject: 'Weekly',
+        html: `
+          <h1>Weekly</h1>
+          <p>
+            Date: ${startDate} To ${endDate}
+          </p>
+          <p>
+            Status: ✅
+          </p>
+          <p>
+            Content: ${NK_CONTENT}
+          </p>
+        `
       },
       () => {
         console.log(
@@ -69,19 +59,20 @@ export default async function writeWeekly() {
       }
     );
   } catch (error) {
-    const errorMessage = `
-      信息：❌周报提交失败
-      错误：${error.message}
-      ${NK_URL}
-    `;
     sendMail(
       {
-        auth,
-        subject: '❌ 周报提交失败',
-        text: errorMessage
+        subject: 'Weekly',
+        html: `
+          <h1>Weekly</h1>
+          <p>Status: ❌</p>
+          <p>Error: ${error.message}</p>
+          <p>Link: <a href="${NK_URL}">Weekly</a></p>
+        `
       },
       () => {
-        console.log(`❌ 周报提交失败 - ${error.message}`);
+        console.log(
+          `${startDate} To ${endDate} - ❌ 周报提交失败 - ${error.message}`
+        );
       }
     );
   } finally {

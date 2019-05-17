@@ -1,6 +1,17 @@
 import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
+import inlineBase64 from 'nodemailer-plugin-inline-base64';
 
-export function sendMail({ auth, subject, text }, cb) {
+dotenv.config();
+
+const { AUTH_USER, AUTH_PASS, AUTH_TO } = process.env;
+const auth = {
+  user: AUTH_USER,
+  pass: AUTH_PASS,
+  to: AUTH_TO
+};
+
+export function sendMail({ subject, html }, cb) {
   const transporter = nodemailer.createTransport({
     host: 'smtp-mail.outlook.com',
     secureConnection: false,
@@ -14,12 +25,17 @@ export function sendMail({ auth, subject, text }, cb) {
     }
   });
 
+  transporter.use(
+    'compile',
+    inlineBase64({ cid: `coderfee_id_${Date.now()}` })
+  );
+
   transporter.sendMail(
     {
       from: auth.user,
       to: auth.to,
-      subject,
-      text
+      subject: `${subject}`,
+      html
     },
     err => {
       if (err) return console.log(err.message);
@@ -28,7 +44,7 @@ export function sendMail({ auth, subject, text }, cb) {
   );
 }
 
-export function formatDate(date) {
+export function formatDateTime(date) {
   date = new Date(date);
   return Intl.DateTimeFormat('zh-cmn-Hans', {
     year: 'numeric',
